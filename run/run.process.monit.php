@@ -17,6 +17,7 @@
 # php -d safe_mode=Off run.process.monit.php
 
 
+
 $phpversion		 = phpversion();
 $phpversion		 = explode('.',$phpversion);
 if( $phpversion[0] <= 5 && $phpversion[1] <= 1):
