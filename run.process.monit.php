@@ -1,7 +1,9 @@
 <?php
 /*
+ * Simple class to monitor one or an list of process
+ * 
  * How to install:
- * mkdir /root/scripts/ && touch /root/scripts/run.process.monit.conf
+ * mkdir /root/scripts/ && touch /root/scripts/run.process.monit.conf && vi /root/scripts/run.process.monit.conf
  * # -----
  * [iPORTO_ProcessMonit]
  * #process_pid: /var/run/process.pid
@@ -11,8 +13,9 @@
  * ;
  * 
  */
-# 1       5       *       *       *       /usr/bin/php -d safe_mode=Off /root/scripts/run.process.monit.php
+# *       *       *       *       *       /usr/bin/php -d safe_mode=Off /root/scripts/run.process.monit.php
 # php -d safe_mode=Off run.process.monit.php
+
 $phpversion		 = phpversion();
 $phpversion		 = explode('.',$phpversion);
 if( $phpversion[0] <= 5 && $phpversion[1] <= 1):
@@ -35,21 +38,12 @@ $Monits = ProcessMonitConf::Parser( $BaseConfContent);
 if( !is_array( $Monits)):
 	die("No data to run\n");
 endif;
+
 foreach( $Monits as $Monit):
-	$Obj = new ProcessMonit( 
-	        	$Monit['process_pid'], 
-	        	$Monit['alert_email'], 
-	        	$Monit['run_start'], 
-	        	$Monit['run_stop'],
-	        	@$Monit['run_chdir']
-	      );
-	$Obj
-	->Monit()
-	->sendMailResults();
+	$Obj = new ProcessMonit( $Monit['process_pid'], $Monit['alert_email'], $Monit['run_start'], $Monit['run_stop'], @$Monit['run_chdir']);
+	$Obj ->Monit() ->sendMailResults();
 endforeach;
 
-// CLASSE SIMPLES PARA EFETUAR MONITORAMENTO DE PROCESSOS
-// IPORTO.COM - 2012-05-02
 class ProcessMonit{
 	function __construct( $process_pid, $alert_email, $run_start, $run_stop, $run_chdir){
 		
