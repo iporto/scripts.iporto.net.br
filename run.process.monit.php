@@ -1,4 +1,16 @@
 <?php
+/*
+ * How to install:
+ * mkdir /root/scripts/ && touch /root/scripts/run.process.monit.conf
+ * # -----
+ * [iPORTO_ProcessMonit]
+ * #process_pid: /var/run/process.pid
+ * #alert_email: monitor@iporto.net.br
+ * #run_start: /etc/init.d/programtostart start
+ * #run_stop: /etc/init.d/programtostart stop
+ * ;
+ * 
+ */
 # 1       5       *       *       *       /usr/bin/php -d safe_mode=Off /root/scripts/run.process.monit.php
 # php -d safe_mode=Off run.process.monit.php
 $phpversion		 = phpversion();
@@ -7,6 +19,9 @@ if( $phpversion[0] <= 5 && $phpversion[1] <= 1):
 	$Base	  	 = '/root/scripts';
 else:
 	$Base	  	 = __DIR__;
+endif;
+if( !is_dir( $Base)):
+	die("Unable to find base dir\n");
 endif;
 
 $BaseConf 		 = $Base . '/run.process.monit.conf';
