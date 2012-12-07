@@ -16,20 +16,46 @@ class BackupDb{
 		$this ->dont_save 			= array('mysql','test','#mysql50#lost+found');
 		
 		$this ->setDbs				= array();
+		
+		if(!defined('DIR_SEPARATOR')):
+			define('DIR_SEPARATOR', (PHP_OS == 'WINNT' ? '\\' : '/'));
+		endif;
+
 		if( $backup_dir == ''):
-			$this ->setBkpDir 		= '/var/backup/';
+			if(PHP_OS == 'WINNT'):
+				$this ->setBkpDir 		= 'c:'.DIR_SEPARATOR.'backup'.DIR_SEPARATOR;
+			else:
+				$this ->setBkpDir 		= DIR_SEPARATOR.'var'.DIR_SEPARATOR.'backup'.DIR_SEPARATOR;
+			endif;
 		else:
 			$this ->setBkpDir 		= $backup_dir;
 		endif;
-		$this ->setBkpDirLog 		= $backup_dir.'logs/';
-		if( @stristr( $this ->conn_base, ',') === false):
-			$this ->setBkpDirLogPim = $this ->conn_host.'-'.$this ->conn_user.'-'.md5($this ->conn_base);
+		if(PHP_OS == 'WINNT'):
+			$this ->CommandMkdir 	 = 'mkdir';
+			$this ->CommandEcho	 	 = 'echo';
+			$this ->CommandMysqlDump = 'mysqldump';
+			$this ->CommandTar		 = 'tar';
+			$this ->CommandLs		 = 'dir';
+			$this ->CommandRm		 = 'rd /s /q';			
 		else:
-			$this ->setBkpDirLogPim = $this ->conn_host.'-'.$this ->conn_user.'-'.md5(implode(',', $this ->conn_base));
+			$this ->CommandMkdir 	 = '/bin/mkdir -p';
+			$this ->CommandEcho	 	 = '/bin/echo';
+			$this ->CommandMysqlDump = '/usr/bin/mysqldump';
+			$this ->CommandTar		 = '/bin/tar';
+			$this ->CommandLs		 = '/bin/ls -lAht';
+			$this ->CommandRm		 = '/bin/rm -rf';				
+		endif;
+		
+		
+		$this ->setBkpDirLog 		= $backup_dir.'logs'.DIR_SEPARATOR;
+		if( @stristr( $this ->conn_base, ',') === false):
+			$this ->setBkpDirLogPim = substr($this ->conn_host,0,25).'-'.$this ->conn_user.'-'.md5($this ->conn_base);
+		else:
+			$this ->setBkpDirLogPim = substr($this ->conn_host,0,25).'-'.$this ->conn_user.'-'.md5(implode(',', $this ->conn_base));
 		endif;
 		$this ->backup_retention	= array('24','120');
 		$this ->backup_dayOfweek	= array('1','2','3','4','5','6','7');
-		$this ->backup_timeToRun	= array('05');
+		$this ->backup_timeToRun	= array('02');
 		$this ->backup_zip 			= 'Y';
 
 		$this ->backup_log_content 	= '';
@@ -42,9 +68,9 @@ class BackupDb{
 		if( !$this ->Conn):
 			$this ->backup_log_content = 'Erro (IMPOSSÍVEL CONECTAR) - BACKUP em '.date('Y-m-d H:i:s').' para '.$this ->conn_host;
 			
-			echo "\n";
+			echo PHP_EOL;
 			echo $this ->backup_log_content;
-			echo "\n";
+			echo PHP_EOL;
 			
 			$this ->Log( $this ->backup_log_content);
 			
@@ -52,7 +78,7 @@ class BackupDb{
 		endif;
 	}
 	private function Log( $String){
-	 	@file_put_contents( $this ->setBkpDirLog.'backup.log', "\n".$String, FILE_APPEND);  
+	 	@file_put_contents( $this ->setBkpDirLog.'backup.log', PHP_EOL.$String, FILE_APPEND);  
 	}
 	public function setBackupZip( $Vlr){
 	    if( $Vlr != ''):
@@ -163,29 +189,43 @@ class BackupDb{
 	    		endif;
 
 	    		if( $CanCreateBackup):
-		    		system('/bin/mkdir -p  '.$this ->setBkpDirLog);
-					system('/bin/echo "'.@json_encode($this).'" > '.$LogBackupRun);
+	    			if( !is_dir($this ->setBkpDirLog)):
+		    			system($this ->CommandMkdir.' '.$this ->setBkpDirLog);
+	    			endif;
+					system($this ->CommandEcho .' "BACKUP INICIADO ('.date('d/m/Y H:i:s').'): '.$this ->conn_host.'" > "'.$LogBackupRun.'"');
 					
+					echo PHP_EOL;
 					echo "Read system logs: ".$LogBackupRun;
-					echo "\n";
-					  		
+					echo PHP_EOL;
+
 			  		// FAZENDO BACKUP DAS BASES
 			  		foreach( $this ->setDbs as $Db):
 			  			$this ->backup_log_content = "";
 
 				  		# CRIAR DIRETORIO DE BACKUP
+				  		if( !is_dir($this ->CommandMkdir.' '.$this ->setBkpDir.$this ->conn_host.DIR_SEPARATOR.'dump'.DIR_SEPARATOR.$Db.DIR_SEPARATOR.'tmp'.DIR_SEPARATOR)):
+				  			 system($this ->CommandMkdir.' '.$this ->setBkpDir.$this ->conn_host.DIR_SEPARATOR.'dump'.DIR_SEPARATOR.$Db.DIR_SEPARATOR.'tmp'.DIR_SEPARATOR);
+				  		endif;
+
+				  		echo PHP_EOL;
+				  		
 				  		for( $D = 1; $D < (count( $this ->backup_retention) +1); $D++):
-					  		system('/bin/mkdir -p '.$this ->setBkpDir.$this ->conn_host.'/dump/'.$Db.'/'.$D.'/');
-			  				system('/bin/mkdir -p '.$this ->setBkpDir.$this ->conn_host.'/dump/'.$Db.'/tmp/');
-					  			
+				  		
+					  		echo "RETER: ".$D." para ".$this ->conn_host." >> ".$Db;
+					  		echo PHP_EOL;				  		
+				  		
+					  		if( !is_dir($this ->CommandMkdir.' '.$this ->setBkpDir.$this ->conn_host.DIR_SEPARATOR.'dump'.DIR_SEPARATOR.$Db.DIR_SEPARATOR.$D)):
+				  				system($this ->CommandMkdir.' '.$this ->setBkpDir.$this ->conn_host.DIR_SEPARATOR.'dump'.DIR_SEPARATOR.$Db.DIR_SEPARATOR.$D.DIR_SEPARATOR);
+				  			endif;
+
 					  		$this ->getTables( $Db);
 					  		
 					  		foreach( $this ->setTbls as $Tbl):
 					  		
-						  		$DbBkpName1 = $this ->setBkpDir.$this ->conn_host.'/dump/'.$Db.'/tmp/'.$Tbl['Name'].'.sql';
-					  			$DbBkpName2 = $this ->setBkpDir.$this ->conn_host.'/dump/'.$Db.'/'.$D.'/'.$Tbl['Name'].'.sql';			
+						  		$DbBkpName1 = $this ->setBkpDir.$this ->conn_host.DIR_SEPARATOR.'dump'.DIR_SEPARATOR.$Db.DIR_SEPARATOR.'tmp'.DIR_SEPARATOR.$Tbl['Name'].'.sql';
+					  			$DbBkpName2 = $this ->setBkpDir.$this ->conn_host.DIR_SEPARATOR.'dump'.DIR_SEPARATOR.$Db.DIR_SEPARATOR.$D.DIR_SEPARATOR.$Tbl['Name'].'.sql';			
 						  		
-					  			exec('/bin/echo "'.$DbBkpName2.'" >> '.$LogBackupRun);
+					  			exec($this ->CommandEcho .' "'.$DbBkpName2.'" >> '.$LogBackupRun);
 						  			
 						  		$CanCreateBackup 		= true;
 						  		$CreateBackupTimeDiff 	= 60 * 60 * $this ->backup_retention[($D-1)];
@@ -195,42 +235,44 @@ class BackupDb{
 							  			$CanCreateBackup = false;
 
 							  			echo "Is not time to Run >> ".$DbBkpName2.( $this ->backup_zip == 'Y' ? '.tar.gz' : '');
-							  			echo "\n";						  				
+							  			echo PHP_EOL;						  				
 							  		endif;		
 						  		endif;
 
 						  		if( $CanCreateBackup):
 							  		if( $D == 1):
-							  			system("/usr/bin/mysqldump -h ".$this ->conn_host." -u ".$this ->conn_user." -p'".$this ->conn_pwd."' ".$Db." ".$Tbl['Name']." > ".$DbBkpName1);
+							  			system($this ->CommandMysqlDump." -h ".$this ->conn_host." -u ".$this ->conn_user." -p\"".$this ->conn_pwd."\" ".$Db." ".$Tbl['Name']." > ".$DbBkpName1);
 							  		endif;
 							  		if( $this ->backup_zip == 'Y'):
-							  			system("/bin/tar -czf ".$DbBkpName2.".tar.gz ".$DbBkpName1);
+							  			system($this ->CommandTar." -czf ".$DbBkpName2.".tar.gz ".$DbBkpName1);
 							  		else:
-							  			copy( $DbBkpName1,$DbBkpName2);
+							  			if( is_file($DbBkpName1)):
+							  				copy( $DbBkpName1, $DbBkpName2);
+							  			endif;
 							  		endif;
 						  		endif;
 					  		endforeach;
 					  		unset( $Rls);
-					  		exec ( '/bin/ls -lAht '.$this ->setBkpDir.$this ->conn_host.'/dump/'.$Db.'/'.$D.'/', $Rls, $a2);
+					  		exec ( $this ->CommandLs.' '.$this ->setBkpDir.$this ->conn_host.DIR_SEPARATOR.'dump'.DIR_SEPARATOR.$Db.DIR_SEPARATOR.$D.DIR_SEPARATOR, $Rls, $a2);
 	
-					  		$this ->backup_log_content .= "BACKUP em ".date('Y-m-d H:i:s')." para ".$this ->conn_host." \n\n ";
+					  		$this ->backup_log_content .= "BACKUP em ".date('Y-m-d H:i:s')." para ".$this ->conn_host." ".PHP_EOL.PHP_EOL;
 					  		if( is_array($Rls)):
 						  		foreach( $Rls as $Dtls):
-						  			$this ->backup_log_content .= $this ->setBkpDir.$this ->conn_host."/dump/".$Db."/".$D." >> ".$Dtls;
-					  				$this ->backup_log_content .= "\n ";
+						  			$this ->backup_log_content .= $this ->setBkpDir.$this ->conn_host.DIR_SEPARATOR."dump".DIR_SEPARATOR.$Db.DIR_SEPARATOR.$D." >> ".$Dtls;
+					  				$this ->backup_log_content .= PHP_EOL;
 						  		endforeach;
 					  		endif;
 				  		endfor;
 				  		
 				  		$this ->Log( $this ->backup_log_content);
 				  		
-				  		system('/bin/rm -rf '.$this ->setBkpDir.$this ->conn_host.'/dump/'.$Db.'/tmp');
+				  		system($this ->CommandRm.' '.$this ->setBkpDir.$this ->conn_host.DIR_SEPARATOR.'dump'.DIR_SEPARATOR.$Db.DIR_SEPARATOR.'tmp');
 				  		
 			  		endforeach;
 		  		else:
-		  			echo "backup of (".(is_array( $this ->setDbs) ? implode('|', $this ->setDbs) : $this ->setDbs).") allready started \n";
+		  			echo "backup of (".(is_array( $this ->setDbs) ? implode('|', $this ->setDbs) : $this ->setDbs).") allready started".PHP_EOL;
 		  			echo $LogBackupRun;
-		  			echo "\n";
+		  			echo PHP_EOL;
 		  		endif;			  		
 			endif;
 		endif;
@@ -239,9 +281,9 @@ class BackupDb{
 	}
 	public function sendMailResults(){
 	    if( $this ->backup_email != '' AND $this ->backup_log_content != ''):
-		    $HEADERS  = "From: monitor@iporto.net.br <monitor@iporto.net.br> \n";
+		    $HEADERS  = "From: backup@iporto.net.br <backup@iporto.net.br> \n";
 		    $HEADERS .= "To: ".$this ->backup_email."\n";
-		    $HEADERS .= "Return-Path: consultoria@iporto.net.br \n";
+		    $HEADERS .= "Return-Path: backup@iporto.net.br \n";
 		    $HEADERS .= "Content-Type: text/plain; charset=ISO-8859-1 \n";
 		
 		    mail( $this ->backup_email, 'BACKUP: Mysql ( host: '.$this ->conn_host.' date: '.date('d/M H:i').' base: '.(is_array( $this ->conn_base) ? implode('|', $this ->conn_base) : $this ->conn_base).')', $this ->backup_log_content, $HEADERS );
@@ -272,7 +314,7 @@ class BackupConf{
 	        
 	        foreach( $ConfList as $Conf):
 		        $Conf = trim($Conf);
-		        $ConfDetails = explode("\n", $Conf);
+		        $ConfDetails = explode(PHP_EOL, $Conf);
 		        foreach( $ConfDetails as $Details):
 			        $Details = trim( $Details);
 			        if( strlen( $Details) >1):

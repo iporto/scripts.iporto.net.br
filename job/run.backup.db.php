@@ -4,10 +4,11 @@
 * /usr/bin/php -d safe_mode=Off /root/scripts/scripts.iporto.net.br/job/run.backup.db.php
 *
 */
+define('DIR_SEPARATOR', (PHP_OS == 'WINNT' ? '\\' : '/'));
 include_once('class/class.backup.db.php');
 
 $Base	  		 = __DIR__;
-$BaseConf 		 = $Base . '/conf/run.backup.db.conf';
+$BaseConf 		 = $Base . DIR_SEPARATOR.'conf'.DIR_SEPARATOR.'run.backup.db.conf';
 if( !is_file($BaseConf)):
 	die("\nUnable to load configuration files at:\n >> ".$BaseConf);
 endif;
