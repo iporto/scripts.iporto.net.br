@@ -5,7 +5,7 @@ PHP 5.3.3 (cli) (built: May  7 2012 20:13:47)
 
 Instalação:
 [root@web ~] mkdir -p /root/scripts/scripts.iporto.net.br
-[root@web ~] git clone git@github.com:iporto/scripts.iporto.net.br.git /root/scripts/scripts.iporto.net.br
+[root@web ~] git clone https://github.com/iporto/scripts.iporto.net.br.git /root/scripts/scripts.iporto.net.br
 
 Execução:
 Backup Mysql
