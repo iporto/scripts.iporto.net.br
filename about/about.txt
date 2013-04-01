@@ -1,1 +1,20 @@
-www.iporto.com.br
+<http://iporto.com.br/por-que-escolher-a-iporto>
+
+A iPORTO.COM é uma empresa especializada em Administração de Servidores Dedicados. Possui uma equipe qualificada para resolver as principais questões do dia a dia de uma administração dedicada, e é capaz de solucionar também questões mais complexas, utilizando-se de seu Know-How adquirido com anos de mercado.
+
+#Empresa 100% Brasileira
+Quando você ligar para nosso suporte ou se comunicar por E-mail, sempre estará falando com um técnico qualificado e que fala Português. Claro, quando Administramos Servidores nos EUA em empresas como Softlayer, 100TB, este mesmo técnico está apto a tratar toda a questão em Inglês e logo após repassar a solução do que foi feito, tudo em Português. Geramos facilidade para seu negócio e dia a dia.
+
+#Empresa que administra “Os grandes” da Internet
+A iPORTO.COM cuida dos seguintes projetos: Mundo Das Tribos, SempreTops, Brasileirinhas e outros grandes Players da Internet.
+Com UPTime de 99,9%, estes sites apresentam conteúdo dinâmico e, às vezes, pago, e precisam estar sempre disponíveis a seus clientes e usuários. Para isso, configuramos redes e projetos com até 15 servidores para cada um destes sites. Servidores para Vídeos com FMS (Flash Media Server), Servidores para imagens e arquivos estáticos com NGINX, e também o velho e bom APACHE para aplicações mais corriqueiras.
+
+#Empresa que usa a Internet
+A iPORTO.COM também possui grandes projetos na Internet, alguns dos quais até fundou, e que administra até hoje, como a ACEITA, empresa especializada em métricas nas redes sociais. Possui um Cluster de Robôs que fazem monitoramento minuto a minuto nas redes sociais via API e que mostra ao seus clientes em um painel único tudo que é falado sobre suas empresas nas redes e mídias sociais.
+A iPORTO.COM  também fundou o LinkTO, projeto para divulgação de links na internet. Um pouco antes do Boom das redes sociais, a iPORTO.COM já desenvolvia projetos colaborativos. No auge de sua atuação, o LinkTO chegou a receber 900 mil usuários únicos por dia. O projeto, logo após, foi adquirido pela Digerati, que o mantém ativo até hoje.
+Empresa que gosta dos clientes e os trata como Amigos
+
+Quando viaja pelo Brasil, seja São Paulo, Curitiba, Teresina ou outras Cidades e Estados, a iPORTO.COM visita as sedes de seus clientes, ficando por dentro dos novos projetos desenvolvidos, e também ouvindo um feedback a respeito dos serviços. A iPORTO.COM preocupa-se com tecnologia e sempre procura novas soluções e redução de custos, dentro da qualidade que gosta de entregar. Isso é ser cliente iPORTO.COM.
+
+#Mais?
+Entre em contato conosco, sempre terá alguém 100% disposto a conversar, trocar ideias, encontrar a melhor solução para seu negócio na Internet.
