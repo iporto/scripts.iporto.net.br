@@ -73,8 +73,6 @@ class BackupDb{
 			echo PHP_EOL;
 			
 			$this ->Log( $this ->backup_log_content);
-			
-			exit();
 		endif;
 	}
 	private function Log( $String){
@@ -233,13 +231,19 @@ class BackupDb{
 						  		if( is_file( $DbBkpName2.( $this ->backup_zip == 'Y' ? '.tar.gz' : ''))):
 							  		if( (time() - ($CreateBackupTimeDiff)) < filemtime( $DbBkpName2.( $this ->backup_zip == 'Y' ? '.tar.gz' : ''))):
 							  			$CanCreateBackup = false;
-
+						  		
+						  				$this ->backup_log_content = "Is not time to Run >> ".$DbBkpName2.( $this ->backup_zip == 'Y' ? '.tar.gz' : '');
+						  				$this ->Log( $this ->backup_log_content);
+						  				
 							  			echo "Is not time to Run >> ".$DbBkpName2.( $this ->backup_zip == 'Y' ? '.tar.gz' : '');
 							  			echo PHP_EOL;						  				
 							  		endif;		
-						  		endif;
+						  		endif;					  		
 
 						  		if( $CanCreateBackup):
+							  		$this ->backup_log_content = 'Backup start at ('.date('Y-m-d H:i:s').'): '.$DbBkpName1;
+							  		$this ->Log( $this ->backup_log_content);						  		
+						  		
 							  		if( $D == 1):
 							  			system($this ->CommandMysqlDump." -h ".$this ->conn_host." -u ".$this ->conn_user." -p\"".$this ->conn_pwd."\" ".$Db." ".$Tbl['Name']." > ".$DbBkpName1);
 							  		endif;
