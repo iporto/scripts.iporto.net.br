@@ -27,6 +27,7 @@ foreach( $Backups as $BackupRun):
 	        	@$BackupRun['db_pwds'], 
 	        	@$BackupRun['db_database'], 
 	        	@$BackupRun['db_database_skiptable'],
+	        	@$BackupRun['db_database_skipdatabase'],
 	        	@$BackupRun['backup_dir']
 	      );
 	$Obj

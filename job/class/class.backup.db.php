@@ -1,6 +1,6 @@
 <?php
 class BackupDb{
-	function __construct( $conn_host = '', $conn_user = '', $conn_pwd = '', $conn_base = '', $conn_base_skiptable = '', $backup_dir = ''){
+	function __construct( $conn_host = '', $conn_user = '', $conn_pwd = '', $conn_base = '', $conn_base_skiptable = '', $conn_base_skipdatabase = '', $backup_dir = ''){
 		
 		$this ->conn_host 				= $conn_host;
 		$this ->conn_user 				= $conn_user;
@@ -8,12 +8,20 @@ class BackupDb{
 		$this ->conn_base 				= $conn_base == '' ? '-' : $conn_base;
 		$this ->conn_base_skiptable		= $conn_base_skiptable == '' ? '-' : $conn_base_skiptable;
 		$this ->conn_base_skiptable 	= explode(',', $conn_base_skiptable);
+		$this ->conn_base_skipedatabase	= $conn_base_skipdatabase == '' ? '-' : $conn_base_skipdatabase;
+		$this ->conn_base_skipedatabase = explode(',', $conn_base_skipdatabase);		
 		
 		if( $this ->conn_base != '-'):
 			$this ->conn_base 			= explode(',', $this ->conn_base);
 		endif;
 
 		$this ->dont_save 			= array('mysql','test','#mysql50#lost+found');
+		foreach( $this ->conn_base_skipedatabase as $skipedatabase):
+			$database = trim($skipedatabase);
+			if( $database != ''):
+				$this ->dont_save[] = $database;
+			endif;
+		endforeach;
 		
 		$this ->setDbs				= array();
 		
