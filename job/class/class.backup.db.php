@@ -253,7 +253,7 @@ class BackupDb{
 							  		$this ->Log( $this ->backup_log_content);						  		
 						  		
 							  		if( $D == 1):
-							  			system($this ->CommandMysqlDump." -h ".$this ->conn_host." -u ".$this ->conn_user." -p\"".$this ->conn_pwd."\" ".$Db." ".$Tbl['Name']." > ".$DbBkpName1);
+							  			system($this ->CommandMysqlDump." --force --compress -h ".$this ->conn_host." -u ".$this ->conn_user." -p\"".$this ->conn_pwd."\" ".$Db." ".$Tbl['Name']." > ".$DbBkpName1);
 							  		endif;
 							  		if( $this ->backup_zip == 'Y'):
 							  			system($this ->CommandTar." -czf ".$DbBkpName2.".tar.gz ".$DbBkpName1);
